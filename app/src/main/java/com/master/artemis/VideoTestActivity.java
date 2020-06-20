@@ -13,9 +13,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.master.artemis.player.api.IArtemisPlayer;
-import com.master.artemis.player.api.IArtemisVideoView;
-import com.master.artemis.player.api.MediaPlayerFactory;
+import com.artemis.player.api.IArtemisPlayer;
+import com.artemis.player.api.IArtemisVideoView;
+import com.artemis.player.api.MediaPlayerFactory;
 
 import java.lang.ref.WeakReference;
 
