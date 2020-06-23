@@ -30,4 +30,8 @@ public class PlayerLog {
     public static void e(String tag, String msg) {
         Log.e(TAG_PREFIX + tag, msg);
     }
+
+    public static void e(String tag, Throwable t) {
+        Log.e(tag, Log.getStackTraceString(t));
+    }
 }

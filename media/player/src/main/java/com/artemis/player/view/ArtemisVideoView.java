@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import com.artemis.player.api.IArtemisVideoView;
 import com.artemis.player.log.PlayerLog;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -22,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author xrealm
  * @date 2020-05-22
  */
-public class ArtemisVideoView extends FrameLayout implements IArtemisVideoView {
+public class ArtemisVideoView extends FrameLayout implements IArtemisVideoView, IRenderSurface {
 
     private static final String TAG = "[ArtemisVideoView]";
 
@@ -33,7 +34,8 @@ public class ArtemisVideoView extends FrameLayout implements IArtemisVideoView {
     private int mWidth;
     private int mHeight;
 
-    private List<IVideoSurfaceListener> mVideoSurfaceListeners = new CopyOnWriteArrayList<>();
+    private List<IVideoViewSurfaceListener> mVideoSurfaceListeners = new CopyOnWriteArrayList<>();
+    private List<IRenderSurfaceListener> mRenderSurfaceListener = new CopyOnWriteArrayList<>();
 
     private IPlayerView.IPlayerViewListener mPlayerViewListener = new IPlayerView.IPlayerViewListener() {
         @Override
@@ -69,20 +71,56 @@ public class ArtemisVideoView extends FrameLayout implements IArtemisVideoView {
     };
 
     private void onSurfaceAvailable(Object surface) {
-        for (IVideoSurfaceListener listener : mVideoSurfaceListeners) {
-            listener.onSurfaceCreated(surface);
+        Iterator<IVideoViewSurfaceListener> viewIterator = mVideoSurfaceListeners.iterator();
+        while (viewIterator.hasNext()) {
+            IVideoViewSurfaceListener lis = viewIterator.next();
+            if (lis != null) {
+                lis.onSurfaceCreated(surface);
+            }
+        }
+
+        Iterator<IRenderSurfaceListener> renderIterator = mRenderSurfaceListener.iterator();
+        while (renderIterator.hasNext()) {
+            IRenderSurfaceListener lis = renderIterator.next();
+            if (lis != null) {
+                lis.onSurfaceCreate(surface);
+            }
         }
     }
 
     private void onSurfaceDestroy(Object surface) {
-        for (IVideoSurfaceListener listener : mVideoSurfaceListeners) {
-            listener.onSurfaceDestroy(surface);
+        Iterator<IVideoViewSurfaceListener> viewIterator = mVideoSurfaceListeners.iterator();
+        while (viewIterator.hasNext()) {
+            IVideoViewSurfaceListener lis = viewIterator.next();
+            if (lis != null) {
+                lis.onSurfaceDestroy(surface);
+            }
+        }
+
+        Iterator<IRenderSurfaceListener> renderIterator = mRenderSurfaceListener.iterator();
+        while (renderIterator.hasNext()) {
+            IRenderSurfaceListener lis = renderIterator.next();
+            if (lis != null) {
+                lis.onSurfaceDestroy(surface);
+            }
         }
     }
 
     private void onSurfaceChanged(Object surface, int width, int height) {
-        for (IVideoSurfaceListener listener : mVideoSurfaceListeners) {
-            listener.onSurfaceChanged(surface, width, height);
+        Iterator<IVideoViewSurfaceListener> viewIterator = mVideoSurfaceListeners.iterator();
+        while (viewIterator.hasNext()) {
+            IVideoViewSurfaceListener lis = viewIterator.next();
+            if (lis != null) {
+                lis.onSurfaceChanged(surface, width, height);
+            }
+        }
+
+        Iterator<IRenderSurfaceListener> renderIterator = mRenderSurfaceListener.iterator();
+        while (renderIterator.hasNext()) {
+            IRenderSurfaceListener lis = renderIterator.next();
+            if (lis != null) {
+                lis.onSurfaceChanged(surface, width, height);
+            }
         }
     }
 
@@ -120,15 +158,41 @@ public class ArtemisVideoView extends FrameLayout implements IArtemisVideoView {
     }
 
     @Override
-    public void addSurfaceListener(IVideoSurfaceListener listener) {
+    public boolean isSurfaceAvailable() {
+        return mViewAvailable;
+    }
+
+    @Override
+    public void setFixSize(int width, int height) {
+        if (mWidth == width || mHeight == height) {
+            return;
+        }
+    }
+
+    @Override
+    public void addRenderSurfaceListener(IRenderSurfaceListener listener) {
+        if (listener != null && !mRenderSurfaceListener.contains(listener)) {
+            mRenderSurfaceListener.add(listener);
+        }
+    }
+
+    @Override
+    public void removeRenderSurfaceListener(IRenderSurfaceListener listener) {
+        if (listener != null) {
+            mRenderSurfaceListener.remove(listener);
+        }
+    }
+
+    @Override
+    public void addViewSurfaceListener(IVideoViewSurfaceListener listener) {
         if (listener != null && !mVideoSurfaceListeners.contains(listener)) {
             mVideoSurfaceListeners.add(listener);
         }
     }
 
     @Override
-    public void removeSurfaceListener(IVideoSurfaceListener listener) {
-        if (listener != null && mVideoSurfaceListeners.contains(listener)) {
+    public void removeViewSurfaceListener(IVideoViewSurfaceListener listener) {
+        if (listener != null) {
             mVideoSurfaceListeners.remove(listener);
         }
     }

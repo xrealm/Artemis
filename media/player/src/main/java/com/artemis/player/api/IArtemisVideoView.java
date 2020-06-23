@@ -11,11 +11,11 @@ public interface IArtemisVideoView {
 
     Surface getRenderSurface();
 
-    void addSurfaceListener(IVideoSurfaceListener listener);
+    void addViewSurfaceListener(IVideoViewSurfaceListener listener);
 
-    void removeSurfaceListener(IVideoSurfaceListener listener);
+    void removeViewSurfaceListener(IVideoViewSurfaceListener listener);
 
-    interface IVideoSurfaceListener {
+    interface IVideoViewSurfaceListener {
 
         void onSurfaceCreated(Object surface);
 

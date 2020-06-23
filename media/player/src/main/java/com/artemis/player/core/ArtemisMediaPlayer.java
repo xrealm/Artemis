@@ -7,6 +7,9 @@ import com.artemis.player.api.IArtemisVideoView;
 import com.artemis.player.core.wrapper.ArtemisExoPlayer;
 import com.artemis.player.core.wrapper.IWrapperPlayer;
 import com.artemis.player.log.PlayerLog;
+import com.artemis.player.render.core.RenderPostProcessor;
+import com.artemis.player.render.core.IRenderPostProcessor;
+import com.artemis.player.view.IRenderSurface;
 
 import java.io.IOException;
 
@@ -22,6 +25,8 @@ public class ArtemisMediaPlayer implements IArtemisPlayer {
     private IWrapperPlayer mediaPlayer;
 
     private ArtemisMediaPlayerListener playerListener;
+
+    private IRenderPostProcessor renderProcessor;
 
     public ArtemisMediaPlayer(Context context, final IArtemisVideoView videoView) {
         mediaPlayer = new ArtemisExoPlayer(context);
@@ -49,11 +54,16 @@ public class ArtemisMediaPlayer implements IArtemisPlayer {
             }
         });
 
-        videoView.addSurfaceListener(new IArtemisVideoView.IVideoSurfaceListener() {
+        videoView.addViewSurfaceListener(new IArtemisVideoView.IVideoViewSurfaceListener() {
             @Override
             public void onSurfaceCreated(Object surface) {
                 PlayerLog.d(TAG, "onSurfaceCreated, " + videoView.getRenderSurface());
-                mediaPlayer.setSurface(videoView.getRenderSurface());
+                if (renderProcessor != null) {
+                    mediaPlayer.setSurface(renderProcessor.getRenderSurface());
+                    renderProcessor.setRenderTarget((IRenderSurface) videoView);
+                } else {
+                    mediaPlayer.setSurface(videoView.getRenderSurface());
+                }
             }
 
             @Override
@@ -66,6 +76,8 @@ public class ArtemisMediaPlayer implements IArtemisPlayer {
                 PlayerLog.d(TAG, "onSurfaceDestroy");
             }
         });
+
+        renderProcessor = new RenderPostProcessor(null);
     }
 
 
@@ -96,6 +108,9 @@ public class ArtemisMediaPlayer implements IArtemisPlayer {
     public void stop() {
         PlayerLog.i(TAG, "stop");
         mediaPlayer.stop();
+        if (renderProcessor != null) {
+            renderProcessor.releaseRender();
+        }
     }
 
     @Override
