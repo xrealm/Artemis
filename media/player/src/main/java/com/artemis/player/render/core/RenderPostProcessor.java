@@ -144,7 +144,8 @@ public class RenderPostProcessor implements IRenderPostProcessor, IRenderSurface
         mTextureRender.onDrawFrame();
     }
 
-    private void releaseEgl() {
+    private void release() {
+        mTextureRender.destroy();
         mEglWrapper.releaseEgl();
     }
 
@@ -203,7 +204,7 @@ public class RenderPostProcessor implements IRenderPostProcessor, IRenderSurface
                 drawFrame();
                 mEglWrapper.swapBuffer();
             }
-            releaseEgl();
+            release();
         }
     }
 }
