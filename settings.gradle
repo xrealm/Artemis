@@ -1,4 +1,5 @@
 rootProject.name='Artemis'
 include ':app'
+include ':media:imageprocess'
 include ':media:player'
 include ':media:playercore'
