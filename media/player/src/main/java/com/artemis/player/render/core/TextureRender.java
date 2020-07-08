@@ -1,9 +1,9 @@
 package com.artemis.player.render.core;
 
 import android.opengl.GLES11Ext;
-import android.opengl.GLES20;
 import android.opengl.GLES30;
 
+import com.artemis.media.egl.util.GLUtil;
 import com.artemis.player.render.util.ShaderUtil;
 
 import java.nio.ByteBuffer;
@@ -60,18 +60,8 @@ public class TextureRender {
     }
 
     public int getTextureId() {
-        int[] textures = new int[1];
-        GLES30.glGenTextures(1, textures, 0);
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
-        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textures[0]);
-
-        GLES30.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST);
-        GLES30.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR);
-        GLES30.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE);
-        GLES30.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE);
-
-        mTextureId = textures[0];
-        return textures[0];
+        mTextureId = GLUtil.generateOESTexture();
+        return mTextureId;
     }
 
     public void onDrawFrame() {
@@ -99,7 +89,7 @@ public class TextureRender {
 
         GLES30.glUseProgram(mProgram);
         passShaderValues();
-        GLES30.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES30.GL_UNSIGNED_SHORT, 0);
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES, drawOrder.length, GLES30.GL_UNSIGNED_SHORT, 0);
         disableDrawArray();
     }
 
@@ -142,13 +132,13 @@ public class TextureRender {
         GLES30.glBindVertexArray(vaos[0]);
         mVao = vaos[0];
 
-        GLES30.glBindBuffer(GLES20.GL_ARRAY_BUFFER, mVbos[0]);
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, mVbos[0]);
         GLES30.glVertexAttribPointer(0, 2, GLES30.GL_FLOAT, false, 4 * 4, 0);
         GLES30.glEnableVertexAttribArray(0);
         GLES30.glVertexAttribPointer(1, 2, GLES30.GL_FLOAT, false, 4 * 4, 2 * 4);
         GLES30.glEnableVertexAttribArray(1);
 
-        GLES30.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, mVbos[1]);
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, mVbos[1]);
     }
 
     private String getVertexShader() {

@@ -5,8 +5,8 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 
+import com.artemis.media.egl.EglCore;
 import com.artemis.player.log.PlayerLog;
-import com.artemis.player.render.egl.ArtemisEGL14;
 import com.artemis.player.view.IRenderSurface;
 
 /**
@@ -30,7 +30,7 @@ public class RenderPostProcessor implements IRenderPostProcessor, IRenderSurface
     private Surface mOutputSurface;
     private boolean mSurfaceAvailable = false;
 
-    private ArtemisEGL14 mEglWrapper;
+    private EglCore mEglWrapper;
     private TextureRender mTextureRender;
 
     private byte[] mFrameSync = new byte[1];
@@ -42,7 +42,7 @@ public class RenderPostProcessor implements IRenderPostProcessor, IRenderSurface
     public RenderPostProcessor(IRenderSurface renderSurface) {
         mRenderTarget = renderSurface;
 
-        mEglWrapper = new ArtemisEGL14();
+        mEglWrapper = new EglCore();
 
         mTextureRender = new TextureRender();
         mRenderState = STATE_RUNNING;
@@ -180,7 +180,7 @@ public class RenderPostProcessor implements IRenderPostProcessor, IRenderSurface
 
         @Override
         public void run() {
-            boolean ret = mEglWrapper.createEgl();
+            boolean ret = mEglWrapper.createDummyEgl();
             if (!ret) {
                 return;
             }

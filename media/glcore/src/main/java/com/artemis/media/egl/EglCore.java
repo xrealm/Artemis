@@ -1,4 +1,4 @@
-package com.artemis.player.render.egl;
+package com.artemis.media.egl;
 
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
@@ -6,33 +6,38 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.GLUtils;
+import android.util.Log;
 import android.view.Surface;
 
-import com.artemis.player.log.PlayerLog;
-
-import javax.microedition.khronos.egl.EGL;
 
 /**
  * Created by xrealm on 2020/06/20.
  */
-public class ArtemisEGL14 {
+public class EglCore {
+
+    public static final int EGL_CLIENT_VERSION_2 = 2;
+    public static final int EGL_CLIENT_VERSION_3 = 3;
 
     private static final String TAG = "[ArtemisEGL14.java]";
 
     private static final int DEFAULT_WIDTH = 100;
     private static final int DEFAULT_HEIGHT = 100;
 
-    private EGLDisplay mEglDisplay = EGL14.EGL_NO_DISPLAY;
-    private EGLSurface mEglSurface = EGL14.EGL_NO_SURFACE;
-    private EGLContext mEglContext = EGL14.EGL_NO_CONTEXT;
+    public EGLDisplay mEglDisplay = EGL14.EGL_NO_DISPLAY;
+    public EGLSurface mEglSurface = EGL14.EGL_NO_SURFACE;
+    public EGLContext mEglContext = EGL14.EGL_NO_CONTEXT;
 
     private EGLConfig mEglConfig = null;
 
-    public boolean createEgl() {
-        return createEgl(EGL14.EGL_NO_CONTEXT);
+    public boolean createDummyEgl() {
+        return createDummyEgl(EGL14.EGL_NO_CONTEXT, EGL_CLIENT_VERSION_3);
     }
 
-    public boolean createEgl(EGLContext shareContext) {
+    public boolean createDummyEgl2() {
+        return createDummyEgl(EGL14.EGL_NO_CONTEXT, EGL_CLIENT_VERSION_2);
+    }
+
+    private boolean createDummyEgl(EGLContext shareContext, int eglClientVersion) {
         mEglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         if (mEglDisplay == EGL14.EGL_NO_DISPLAY) {
             throw new RuntimeException("eglGetDisplay failed: " + GLUtils.getEGLErrorString(EGL14.eglGetError()));
@@ -57,16 +62,16 @@ public class ArtemisEGL14 {
         if (configsCount[0] <= 0) {
             throw new RuntimeException("eglChooseConfig failed: " + GLUtils.getEGLErrorString(EGL14.eglGetError()));
         }
-        PlayerLog.d(TAG, "eglChooseConfig ");
+        Log.d(TAG, "eglChooseConfig");
         mEglConfig = configs[0];
         int[] contextAttribs = new int[]{
-                EGL14.EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL14.EGL_CONTEXT_CLIENT_VERSION, eglClientVersion,
                 EGL14.EGL_NONE
         };
         if ((mEglContext = EGL14.eglCreateContext(mEglDisplay, mEglConfig, shareContext, contextAttribs, 0)) == EGL14.EGL_NO_CONTEXT) {
             throw new RuntimeException("eglCreateContext failed: " + GLUtils.getEGLErrorString(EGL14.eglGetError()));
         }
-        PlayerLog.d(TAG, "eglChooseConfig ");
+        Log.d(TAG, "eglCreateContext");
         int[] values = new int[1];
         EGL14.eglQueryContext(mEglDisplay, mEglContext, EGL14.EGL_CONTEXT_CLIENT_VERSION, values, 0);
 
@@ -78,7 +83,7 @@ public class ArtemisEGL14 {
         try {
             mEglSurface = EGL14.eglCreatePbufferSurface(mEglDisplay, mEglConfig, surfaceAttribs, 0);
         } catch (Exception e) {
-            PlayerLog.e(TAG, e);
+            Log.e(TAG, e.getMessage(), e);
             mEglSurface = EGL14.EGL_NO_SURFACE;
         }
         if (mEglSurface == null || mEglSurface == EGL14.EGL_NO_SURFACE) {
@@ -117,16 +122,16 @@ public class ArtemisEGL14 {
         if (configsCount[0] <= 0) {
             throw new RuntimeException("eglChooseConfig failed: " + GLUtils.getEGLErrorString(EGL14.eglGetError()));
         }
-        PlayerLog.d(TAG, "eglChooseConfig ");
+        Log.d(TAG, "eglChooseConfig ");
         mEglConfig = configs[0];
         int[] contextAttribs = new int[]{
-                EGL14.EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
                 EGL14.EGL_NONE
         };
         if ((mEglContext = EGL14.eglCreateContext(mEglDisplay, mEglConfig, shareContext, contextAttribs, 0)) == EGL14.EGL_NO_CONTEXT) {
             throw new RuntimeException("eglCreateContext failed: " + GLUtils.getEGLErrorString(EGL14.eglGetError()));
         }
-        PlayerLog.d(TAG, "eglChooseConfig ");
+        Log.d(TAG, "eglChooseConfig ");
         int[] values = new int[1];
         EGL14.eglQueryContext(mEglDisplay, mEglContext, EGL14.EGL_CONTEXT_CLIENT_VERSION, values, 0);
 
@@ -144,10 +149,49 @@ public class ArtemisEGL14 {
         return true;
     }
 
+    public int createEglSurface(Object screenSurface) {
+        int[] surfaceAttribs = {
+                EGL14.EGL_NONE
+        };
+        int ret = 0;
+        if (mEglDisplay != EGL14.EGL_NO_DISPLAY && mEglContext != EGL14.EGL_NO_CONTEXT) {
+            if (mEglSurface != EGL14.EGL_NO_SURFACE) {
+                EGL14.eglDestroySurface(mEglDisplay, mEglSurface);
+                mEglSurface = EGL14.EGL_NO_SURFACE;
+                EGL14.eglMakeCurrent(mEglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+            }
+
+            try {
+                mEglSurface = EGL14.eglCreateWindowSurface(mEglDisplay, mEglConfig, screenSurface, surfaceAttribs, 0);
+            } catch (Exception e) {
+                mEglSurface = EGL14.EGL_NO_SURFACE;
+            }
+            if (EGL14.EGL_NO_SURFACE == mEglSurface || mEglSurface == null) {
+                // throw new RuntimeException("eglCreateWindowSurface,failed:" + GLUtils.getEGLErrorString(EGL14.eglGetError()));
+                Log.e(TAG, "createEglSurface: eglCreateWindowSurface failed: " + GLUtils.getEGLErrorString(EGL14.eglGetError()));
+                ret = -1;
+                return ret;
+            }
+            if (!EGL14.eglMakeCurrent(mEglDisplay, this.mEglSurface, mEglSurface, this.mEglContext)) {
+                Log.e(TAG, "createEglSurface: eglMakeCurrent failed: " + GLUtils.getEGLErrorString(EGL14.eglGetError()));
+                // throw new RuntimeException("eglMakeCurrent,failed:" + GLUtils.getEGLErrorString(EGL14.eglGetError()));
+            }
+        } else {
+            ret = -1;
+        }
+        return ret;
+    }
+
+    public boolean makeCurrent() {
+        return makeCurrent(mEglSurface);
+    }
+
     public boolean makeCurrent(EGLSurface readSurface) {
+        Log.e(TAG, "makeCurrent: ");
         if (mEglDisplay != EGL14.EGL_NO_DISPLAY && readSurface != EGL14.EGL_NO_SURFACE && mEglContext != EGL14.EGL_NO_CONTEXT) {
             if (!EGL14.eglMakeCurrent(mEglDisplay, mEglSurface, readSurface, mEglContext)) {
-                throw new RuntimeException("eglMakeCurrent failed: " + GLUtils.getEGLErrorString(EGL14.eglGetError()));
+                Log.i(TAG, "makeCurrent: failed: " + GLUtils.getEGLErrorString(EGL14.eglGetError()));
+                return false;
             }
             return true;
         }
@@ -207,7 +251,7 @@ public class ArtemisEGL14 {
         if (mEglDisplay != EGL14.EGL_NO_DISPLAY && mEglContext != EGL14.EGL_NO_CONTEXT) {
             if (mEglSurface != EGL14.EGL_NO_SURFACE) {
                 if (!EGL14.eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext)) {
-                    PlayerLog.e(TAG, "releaseEgl failed.");
+                    Log.e(TAG, "releaseEgl failed.");
                 }
                 EGL14.eglDestroySurface(mEglDisplay, mEglSurface);
             }
@@ -216,7 +260,7 @@ public class ArtemisEGL14 {
             EGL14.eglDestroySurface(mEglDisplay, mEglSurface);
             mEglContext = EGL14.EGL_NO_CONTEXT;
             mEglSurface = EGL14.EGL_NO_SURFACE;
-            PlayerLog.e(TAG, "releaseEgl.");
+            Log.e(TAG, "releaseEgl.");
         }
     }
 }
