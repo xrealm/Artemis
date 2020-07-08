@@ -38,6 +38,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.tv_camera_preview).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CameraGLActivity.class);
+                startActivity(intent);
+            }
+        });
+
         findViewById(R.id.tv_player_preview).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,9 +70,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQ_ALL) {
             boolean success = permissions.length == 0 || verifyPermissions(grantResults);
-            if (success) {
-
-            } else {
+            if (!success) {
                 Toast.makeText(this, "缺少权限无法正常使用", Toast.LENGTH_SHORT).show();
                 finish();
             }

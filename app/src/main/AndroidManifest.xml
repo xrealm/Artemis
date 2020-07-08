@@ -39,6 +39,10 @@
             android:name=".VideoTestActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".CameraGLActivity"
+            android:screenOrientation="portrait" />
+
         <activity android:name=".ImageGLActivity"
             android:screenOrientation="portrait" />
 
