@@ -2,6 +2,8 @@ package com.artemis.player.render.core;
 
 import android.opengl.GLES11Ext;
 import android.opengl.GLES30;
+import android.opengl.Matrix;
+import android.os.SystemClock;
 
 import com.artemis.media.egl.util.GLUtil;
 import com.artemis.player.render.util.ShaderUtil;
@@ -19,6 +21,7 @@ public class TextureRender {
     private boolean initialized;
     private int mProgram;
     private int mTextureHandle;
+    private int mMvpMatrixHandle;
 
     private FloatBuffer mVerticesBuffer;
     private ShortBuffer mIndicesBuffer;
@@ -32,6 +35,11 @@ public class TextureRender {
     private int[] mVbos;
     private int mVao;
     private int mTextureId;
+
+    private float[] mViewMatrix = new float[16];
+    private float[] mProjectionMatrix = new float[16];
+    private float[] mMvpMatrix = new float[16];
+    private float[] mSensorMatrix = new float[16];
 
     private int mWidth;
     private int mHeight;
@@ -98,6 +106,9 @@ public class TextureRender {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
         GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, mTextureId);
         GLES30.glUniform1i(mTextureHandle, 0);
+
+        Matrix.setIdentityM(mMvpMatrix, 0);
+        GLES30.glUniformMatrix4fv(mMvpMatrixHandle, 1, false, mMvpMatrix, 0);
     }
 
     protected void disableDrawArray() {
@@ -107,6 +118,7 @@ public class TextureRender {
 
     private void initShaderHandles() {
         mTextureHandle = GLES30.glGetUniformLocation(mProgram, "iTexture");
+        mMvpMatrixHandle = GLES30.glGetUniformLocation(mProgram, "iMvpMatrix");
     }
 
     private void initGLContext() {
@@ -145,10 +157,11 @@ public class TextureRender {
         return  "#version 300 es\n"
                 + "layout(location = 0) in vec2 iPosition;\n"
                 + "layout(location = 1) in vec2 iTextureCoord;\n"
+                + "uniform mat4 iMvpMatrix;\n"
                 + "out vec2 vTextureCoord;\n"
                 + "\n"
                 + "void main() {\n"
-                + "    gl_Position = vec4(iPosition,0.0,1.0);\n"
+                + "    gl_Position = iMvpMatrix * vec4(iPosition,0.0,1.0);\n"
                 + "    vTextureCoord = iTextureCoord;\n"
                 + "}\n";
 

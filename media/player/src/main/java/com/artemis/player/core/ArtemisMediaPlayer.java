@@ -77,7 +77,7 @@ public class ArtemisMediaPlayer implements IArtemisPlayer {
             }
         });
 
-        renderProcessor = new RenderPostProcessor(null);
+        renderProcessor = new RenderPostProcessor(context, null);
     }
 
 
