@@ -1,5 +1,6 @@
 package com.artemis.player.render.core;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 
@@ -7,6 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.artemis.media.egl.EglCore;
 import com.artemis.player.log.PlayerLog;
+import com.artemis.player.sensor.ArtemisSensorListener;
 import com.artemis.player.view.IRenderSurface;
 
 /**
@@ -14,7 +16,8 @@ import com.artemis.player.view.IRenderSurface;
  */
 public class RenderPostProcessor implements IRenderPostProcessor, IRenderSurface,
         IRenderSurface.IRenderSurfaceListener,
-        SurfaceTexture.OnFrameAvailableListener {
+        SurfaceTexture.OnFrameAvailableListener,
+        ArtemisSensorListener.UpdateSensorListener {
 
     private static final String TAG = "[RenderPostProcessor.java]";
 
@@ -39,7 +42,9 @@ public class RenderPostProcessor implements IRenderPostProcessor, IRenderSurface
 
     private RenderThread mRenderThread;
 
-    public RenderPostProcessor(IRenderSurface renderSurface) {
+    private ArtemisSensorListener gyroSensor;
+
+    public RenderPostProcessor(Context context, IRenderSurface renderSurface) {
         mRenderTarget = renderSurface;
 
         mEglWrapper = new EglCore();
@@ -48,6 +53,10 @@ public class RenderPostProcessor implements IRenderPostProcessor, IRenderSurface
         mRenderState = STATE_RUNNING;
         mRenderThread = new RenderThread("PlayerPostRender");
         mRenderThread.start();
+
+        gyroSensor = new ArtemisSensorListener(context);
+        gyroSensor.setUpdateSensorListener(this);
+        gyroSensor.start();
     }
 
     @Override
@@ -120,6 +129,7 @@ public class RenderPostProcessor implements IRenderPostProcessor, IRenderSurface
             mFrameAvailable = false;
             mFrameSync.notify();
         }
+        gyroSensor.stop();
     }
 
     private void createTexture() {
@@ -170,6 +180,11 @@ public class RenderPostProcessor implements IRenderPostProcessor, IRenderSurface
             mFrameAvailable = true;
             mFrameSync.notify();
         }
+    }
+
+    @Override
+    public void updateSensor(float[] sensorMatrix) {
+
     }
 
     private class RenderThread extends Thread {
