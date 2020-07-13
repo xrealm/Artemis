@@ -6,3 +6,5 @@ include ':media:player'
 include ':media:playercore'
 include ':media:filter'
 include ':media:camera'
+
+include ':cv'
