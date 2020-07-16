@@ -1,19 +1,18 @@
 package com.artemis.media.filter.filter;
 
-import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.os.SystemClock;
 
-import com.artemis.media.filter.api.GLTextureInputRenderer;
 import com.artemis.media.filter.input.GLTextureOutputRenderer;
 
 /**
  *
  * Created by xrealm on 2020/7/10.
  */
-public class BasicDynamicFilter  extends GLTextureOutputRenderer implements GLTextureInputRenderer {
+public class BasicDynamicFilter  extends BasicFilter {
 
     protected static final String UNIFORM_TIME = "iTime";
+    protected static final String UNIFORM_RESOLUTION = "iResolution";
 
     protected int timeHandle;
     protected float timestamp;

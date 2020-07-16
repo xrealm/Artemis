@@ -1,26 +1,35 @@
-package com.artemis.media.filter.filter;
+package com.artemis.media.filter.colour;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES30;
 
+import com.artemis.media.filter.base.IFilterIntensity;
+import com.artemis.media.filter.filter.BasicFilter;
 import com.artemis.media.filter.input.GLTextureOutputRenderer;
 import com.artemis.media.filter.util.TextureHelper;
 
 /**
  * Created by xrealm on 2020/7/5.
  */
-public class LookupFilter extends BasicFilter {
+public class LookupFilter extends BasicFilter implements IFilterIntensity {
 
     private Bitmap lutBitmap;
     private int lutTexture;
     private int lutTextureHandle;
     private int intensityHandle;
 
+    private float intensity = 1.0f;
+
     public LookupFilter(Context context, int resId) {
 
         lutBitmap = BitmapFactory.decodeResource(context.getResources(), resId);
+    }
+
+    @Override
+    public void setIntensity(float intensity) {
+        this.intensity = intensity;
     }
 
     @Override
@@ -33,7 +42,7 @@ public class LookupFilter extends BasicFilter {
     @Override
     protected void passShaderValues() {
         super.passShaderValues();
-        GLES30.glUniform1f(intensityHandle, 1f);
+        GLES30.glUniform1f(intensityHandle, intensity);
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, lutTexture);

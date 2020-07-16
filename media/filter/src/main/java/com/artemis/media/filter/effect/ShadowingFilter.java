@@ -1,4 +1,4 @@
-package com.artemis.media.filter.processing;
+package com.artemis.media.filter.effect;
 
 import com.artemis.media.filter.filter.BasicDynamicFilter;
 

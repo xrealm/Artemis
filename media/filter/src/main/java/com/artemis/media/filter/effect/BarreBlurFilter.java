@@ -1,4 +1,4 @@
-package com.artemis.media.filter.processing;
+package com.artemis.media.filter.effect;
 
 import android.opengl.GLES20;
 import android.opengl.GLES30;
