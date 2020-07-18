@@ -13,7 +13,11 @@ public class FacePPWrapper {
 
     private Facepp facepp;
 
-    public void auth(Context context, final ILicenseListener licenseListener) {
+    public FacePPWrapper() {
+        facepp = new Facepp();
+    }
+
+    public static void auth(Context context, final ILicenseListener licenseListener) {
 
         if (Facepp.getSDKAuthType(ConUtil.getFileContent(context, R.raw.megviifacepp_0_5_2_model)) == 2) {
             return;
@@ -48,11 +52,7 @@ public class FacePPWrapper {
     }
 
     public void init(Context context) {
-        release();
-        if (facepp == null) {
-            facepp = new Facepp();
-            facepp.init(context, ConUtil.getFileContent(context, R.raw.megviifacepp_0_5_2_model), 1);
-        }
+        facepp.init(context, ConUtil.getFileContent(context, R.raw.megviifacepp_0_5_2_model), 1);
     }
 
     public void release() {

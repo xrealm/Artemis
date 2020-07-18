@@ -5,12 +5,11 @@ import android.graphics.SurfaceTexture;
 import android.view.TextureView;
 
 import com.artemis.media.camera.config.CameraConfig;
+import com.artemis.media.camera.filter.ImagePreProcessingFilter;
 import com.artemis.media.camera.input.CameraPreviewInput;
 import com.artemis.media.filter.FastImageProcessingPipeline;
 import com.artemis.media.filter.GLScreenEndpoint;
-import com.artemis.media.filter.filter.LookupFilter;
 import com.artemis.media.filter.view.GLTextureView;
-import com.master.artemis.R;
 
 /**
  * Created by xrealm on 2020/6/27.
@@ -20,7 +19,7 @@ public class CameraPreviewer implements TextureView.SurfaceTextureListener {
     private FastImageProcessingPipeline mImagePipeline;
     private GLScreenEndpoint mScreenEndPoint;
     private CameraPreviewInput mCameraPreviewInput;
-    private LookupFilter lookupFilter;
+    private ImagePreProcessingFilter preFilter;
     private GLTextureView mGLView;
 
 
@@ -37,10 +36,10 @@ public class CameraPreviewer implements TextureView.SurfaceTextureListener {
         mScreenEndPoint = new GLScreenEndpoint();
         mCameraPreviewInput = new CameraPreviewInput(activity.getApplicationContext(), cameraConfig);
         mCameraPreviewInput.setRenderer(textureView);
-        lookupFilter = new LookupFilter(activity.getApplicationContext(), R.mipmap.abaose_lut);
+        preFilter = new ImagePreProcessingFilter(activity.getApplicationContext());
 
-        mCameraPreviewInput.addTarget(lookupFilter);
-        lookupFilter.addTarget(mScreenEndPoint);
+        mCameraPreviewInput.addTarget(preFilter);
+        preFilter.addTarget(mScreenEndPoint);
 
         mImagePipeline.addRootRenderer(mCameraPreviewInput);
 

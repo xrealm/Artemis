@@ -5,11 +5,14 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES30;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.Size;
 
+import com.artemis.cv.ArtemisFaceProcessor;
 import com.artemis.media.camera.CameraAdapter;
 import com.artemis.media.camera.ICamera;
 import com.artemis.media.camera.ICameraDataCallback;
@@ -43,9 +46,9 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
     private int mTextureID = 0;
     private SurfaceTexture mCameraTexture = null;
 
-    public boolean isFrontCamera() {
-        return mCameraAdapter.isFrontCamera();
-    }
+    private HandlerThread mDetectThread;
+    private Handler mDetectHandler;
+    private ArtemisFaceProcessor mFaceProcessor;
 
     public CameraPreviewInput(Context context, CameraConfig cameraConfig) {
         super();
@@ -56,6 +59,10 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
         }
         mCameraAdapter = new CameraAdapter(context, cameraConfig);
         useNewViewPort = true;
+    }
+
+    public boolean isFrontCamera() {
+        return mCameraAdapter.isFrontCamera();
     }
 
     @Override
@@ -108,7 +115,7 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
             }
         });
 
-
+        startDetect();
         mCameraAdapter.setCameraDataCallback(this);
 
         getCameraTexture();
@@ -137,9 +144,12 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
         }
         synchronized (mCameraSync) {
             CamLog.d(TAG, "stopPreview");
+            mCameraAdapter.setCameraDataCallback(null);
+            mCameraAdapter.setOnCameraErrorListener(null);
             mCameraAdapter.stopPreview();
             mCameraAdapter.release();
             frames = 0;
+            stopDetect();
         }
 
         releaseCameraTexture();
@@ -151,6 +161,27 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
             mCameraAdapter.release();
 
             releaseCameraTexture();
+        }
+    }
+
+    private void startDetect() {
+        if (mDetectThread == null) {
+            mDetectThread = new HandlerThread("ArtemisDetect");
+            mDetectThread.start();
+        }
+        if (mDetectHandler == null) {
+            mDetectHandler = new Handler(mDetectThread.getLooper());
+        }
+    }
+
+    private void stopDetect() {
+        if (mDetectHandler != null) {
+            mDetectHandler.removeCallbacksAndMessages(null);
+            mDetectHandler = null;
+        }
+        if (mDetectThread != null) {
+            mDetectThread.quit();
+            mDetectThread = null;
         }
     }
 
@@ -204,7 +235,9 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
         if (null == mCameraAdapter.getCamera() || data == null) {
             return;
         }
-        processCameraData(data);
+        if (mDetectThread != null || mDetectHandler != null) {
+            processCameraData(data);
+        }
     }
 
     private void processCameraData(byte[] data) {
@@ -212,6 +245,12 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
             return;
         }
         synchronized (mCameraSync) {
+            long start = SystemClock.elapsedRealtime();
+            if (mFaceProcessor == null) {
+                mFaceProcessor = new ArtemisFaceProcessor();
+                mFaceProcessor.init();
+            }
+            mFaceProcessor.processFrame();
             updateYuv(data);
         }
     }
