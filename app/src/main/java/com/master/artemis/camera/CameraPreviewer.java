@@ -37,6 +37,7 @@ public class CameraPreviewer implements TextureView.SurfaceTextureListener {
         mCameraPreviewInput = new CameraPreviewInput(activity.getApplicationContext(), cameraConfig);
         mCameraPreviewInput.setRenderer(textureView);
         preFilter = new ImagePreProcessingFilter(activity.getApplicationContext());
+        mCameraPreviewInput.setFaceFilter(preFilter);
 
         mCameraPreviewInput.addTarget(preFilter);
         preFilter.addTarget(mScreenEndPoint);
