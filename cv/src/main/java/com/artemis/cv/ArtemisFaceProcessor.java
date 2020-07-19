@@ -11,12 +11,11 @@ public class ArtemisFaceProcessor {
     private FacePPWrapper faceProcessor;
     private boolean isFaceDetectEnable = true;
 
-    public void init() {
+    public void prepare(int rotation, int imageWidth, int imageHeight) {
         release();
-        if (faceProcessor == null) {
-            faceProcessor = new FacePPWrapper();
-            faceProcessor.init(ArtemisFaceContext.getAppContext());
-        }
+        faceProcessor = new FacePPWrapper();
+        faceProcessor.setContext(ArtemisFaceContext.getAppContext());
+        faceProcessor.prepare(rotation, imageWidth, imageHeight);
     }
 
     public void setFaceDetectEnable(boolean enable) {
@@ -48,10 +47,10 @@ public class ArtemisFaceProcessor {
         private static ArtemisFaceProcessor sInstance = new ArtemisFaceProcessor();
     }
 
-    public void processFrame() {
+    public void processFrame(DetectFrame detectFrame, DetectParams detectParams, FrameInfo frameInfo) {
         if (!isFaceDetectEnable || faceProcessor == null) {
             return;
         }
-        faceProcessor.processFrame();
+        faceProcessor.processFrame(detectFrame, detectParams, frameInfo);
     }
 }

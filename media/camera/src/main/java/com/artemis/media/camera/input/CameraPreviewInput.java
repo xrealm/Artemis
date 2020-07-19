@@ -13,10 +13,14 @@ import android.util.Log;
 import android.util.Size;
 
 import com.artemis.cv.ArtemisFaceProcessor;
+import com.artemis.cv.DetectParams;
+import com.artemis.cv.DetectFrame;
+import com.artemis.cv.FrameInfo;
 import com.artemis.media.camera.CameraAdapter;
 import com.artemis.media.camera.ICamera;
 import com.artemis.media.camera.ICameraDataCallback;
 import com.artemis.media.camera.config.CameraConfig;
+import com.artemis.media.camera.filter.IFaceFilter;
 import com.artemis.media.camera.log.CamLog;
 import com.artemis.media.camera.util.CameraUtil;
 import com.artemis.media.camera.util.TextureRotationUtil;
@@ -49,6 +53,10 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
     private HandlerThread mDetectThread;
     private Handler mDetectHandler;
     private ArtemisFaceProcessor mFaceProcessor;
+    private DetectParams mDetectParams = new DetectParams();
+    private DetectFrame mDetectFrame = new DetectFrame();
+
+    private IFaceFilter mFaceFilter;
 
     public CameraPreviewInput(Context context, CameraConfig cameraConfig) {
         super();
@@ -164,6 +172,10 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
         }
     }
 
+    public void setFaceFilter(IFaceFilter faceFilter) {
+        mFaceFilter = faceFilter;
+    }
+
     private void startDetect() {
         if (mDetectThread == null) {
             mDetectThread = new HandlerThread("ArtemisDetect");
@@ -244,22 +256,47 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
         if (!isFrameUsed()) {
             return;
         }
+        FrameInfo frameInfo = new FrameInfo();
         synchronized (mCameraSync) {
             long start = SystemClock.elapsedRealtime();
             if (mFaceProcessor == null) {
                 mFaceProcessor = new ArtemisFaceProcessor();
-                mFaceProcessor.init();
+                mFaceProcessor.prepare(mCameraAdapter.getCameraRotation(),
+                        mCamConfig.previewVideoWidth, mCamConfig.previewVideoHeight);
             }
-            mFaceProcessor.processFrame();
-            updateYuv(data);
+
+            mDetectFrame.width = mCamConfig.previewVideoWidth;
+            mDetectFrame.height = mCamConfig.previewVideoHeight;
+            mDetectFrame.data = data;
+            mDetectFrame.format = DetectFrame.FMT_NV21;
+            mDetectParams.rotation = getRotation();
+            mDetectParams.flipShow = mCameraAdapter.isFrontCamera();
+
+            mFaceProcessor.processFrame(mDetectFrame, mDetectParams, frameInfo);
+
+            long detectCost = SystemClock.elapsedRealtime() - start;
+
+            frameInfo.isFrontCamera = mCameraAdapter.isFrontCamera();
+            frameInfo.frameData = data;
+            frameInfo.width = mCamConfig.previewVideoWidth;
+            frameInfo.height = mCamConfig.previewVideoHeight;
+
+            updateYuv(frameInfo, data);
         }
     }
 
+    private int getRotation() {
+        return 270;
+    }
 
-    private void updateYuv(byte[] data) {
+
+    private void updateYuv(FrameInfo frameInfo, byte[] data) {
         int planerSize = mCamConfig.previewVideoWidth * mCamConfig.previewVideoHeight;
         updateYUVBuffer(data, planerSize);
 
+        if (mFaceFilter != null) {
+            mFaceFilter.setFrameInfo(frameInfo);
+        }
         try {
             if (null != mRenderer) {
                 mRenderer.requestRender();
