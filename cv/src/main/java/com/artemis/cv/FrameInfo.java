@@ -8,7 +8,7 @@ public class FrameInfo {
     public int height;
     public byte[] frameData;
 
-    public int getFaceCnt() {
-        return faceInfos != null ? faceInfos.length : 0;
+    public boolean hasFace() {
+        return faceInfos != null && faceInfos.length > 0;
     }
 }

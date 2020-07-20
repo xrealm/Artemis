@@ -108,7 +108,6 @@ public class FacePPWrapper {
             SingleFaceInfo singleFaceInfo = new SingleFaceInfo();
 
             facepp.getLandmarkRaw(faceppFace, Facepp.FPP_GET_LANDMARK106);
-//            facepp.getLandmarkRaw(singleFace, Facepp.FPP_GET_LANDMARK81);
             facepp.get3DPose(faceppFace);
 
             singleFaceInfo.trackId = faceppFace.trackID;
@@ -126,12 +125,12 @@ public class FacePPWrapper {
                 }
                 float[] point = new float[]{y, x};
 
-                singleFaceInfo.landmark106[2 * i] = point[0];
+                singleFaceInfo.landmark106[2 * i] = -point[0];
 
                 singleFaceInfo.landmark106[2 * i + 1] = point[1];
             }
             frameInfo.faceInfos[index] = singleFaceInfo;
-
+            // TODO: 2020/7/20 rect转换重新计算
             Rect rect = faceppFace.rect;
             float top = 1 - (rect.top * 1.0f / height) * 2;
             float left = (rect.left * 1.0f / width) * 2 - 1;
