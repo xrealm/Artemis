@@ -40,7 +40,7 @@ public class FacePointFilter extends BasicFilter implements IFaceFilter {
     public void drawSub() {
         super.drawSub();
 
-        if (frameInfo == null || frameInfo.getFaceCnt() == 0) {
+        if (frameInfo == null || !frameInfo.hasFace()) {
             return;
         }
 
