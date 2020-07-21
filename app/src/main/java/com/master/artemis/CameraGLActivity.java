@@ -2,7 +2,9 @@ package com.master.artemis;
 
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.Surface;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
@@ -14,6 +16,7 @@ import com.artemis.media.camera.render.ISurfaceRenderer;
 import com.artemis.media.camera.view.CameraPreviewView;
 import com.artemis.media.filter.view.GLTextureView;
 import com.master.artemis.camera.CameraPreviewer;
+import com.master.artemis.util.ScreenOrientationHelper;
 
 /**
  * Created by xrealm on 2020/6/25.
@@ -24,10 +27,13 @@ public class CameraGLActivity extends AppCompatActivity {
     private CameraPreviewer cameraPreviewer;
     private GLTextureView glTextureView;
     private ISurfaceRenderer surfaceRenderer;
+    private CameraConfig cameraConfig;
+    private ScreenOrientationHelper orientationHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setWindowParams();
         setContentView(R.layout.activity_camera_preview);
         FrameLayout rootView = findViewById(R.id.cam_preview_rootview);
 
@@ -55,30 +61,21 @@ public class CameraGLActivity extends AppCompatActivity {
             }
         });
         glTextureView = (GLTextureView) previewView.getSurfaceRenderer();
+        initCameraConfig();
         openPreview();
-
     }
 
-    private int getRotation() {
-        int rotation = getWindowManager().getDefaultDisplay().getRotation();
-        switch (rotation) {
-            case Surface.ROTATION_0:
-                return 0;
-            case Surface.ROTATION_90:
-                return 90;
-            case Surface.ROTATION_180:
-                return 180;
-            case Surface.ROTATION_270:
-                return 270;
-            default:
-                return 0;
-        }
+    private void initCameraConfig() {
+        cameraConfig = CameraConfig.obtainV2();
+//        cameraConfig.previewVideoWidth = 1280;
+//        cameraConfig.previewVideoHeight = 720;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         stopPreview();
+        unRegisterOrientationChanged();
     }
 
     private void stopPreview() {
@@ -89,13 +86,48 @@ public class CameraGLActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         openPreview();
+        registerOrientationChanged();
     }
 
     private void openPreview() {
-        CameraConfig cameraConfig = CameraConfig.obtain();
         if (cameraPreviewer == null) {
             cameraPreviewer = new CameraPreviewer(this, glTextureView);
         }
         cameraPreviewer.startPreview(this);
+    }
+
+    private void registerOrientationChanged() {
+        if (orientationHelper == null) {
+            orientationHelper = new ScreenOrientationHelper(this);
+            orientationHelper.setOrientationChangedListener(new ScreenOrientationHelper.OrientationChangedListener() {
+                @Override
+                public void orientationChanged(int angle) {
+                    cameraConfig.setOrientation(angle);
+                }
+            });
+        }
+        if (orientationHelper.canDetectOrientation()) {
+            orientationHelper.enable();
+        } else {
+            orientationHelper = null;
+        }
+    }
+
+    private void unRegisterOrientationChanged() {
+        if (orientationHelper != null) {
+            orientationHelper.disable();
+            orientationHelper = null;
+        }
+    }
+
+    private void setWindowParams() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        WindowManager.LayoutParams attributes = getWindow().getAttributes();
+        float screenBrightness = attributes.screenBrightness;
+        float value = 0.7f;
+        if (screenBrightness < value) {
+            attributes.screenBrightness = value;
+            getWindow().setAttributes(attributes);
+        }
     }
 }

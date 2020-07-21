@@ -1,6 +1,7 @@
 package com.master.artemis;
 
 import android.app.Application;
+import android.os.StrictMode;
 
 import com.artemis.cv.ArtemisFaceDetectModule;
 import com.artemis.media.camera.ArtemisCameraModule;
@@ -15,5 +16,11 @@ public class ArtemisApplication extends Application {
         ArtemisCameraModule.init(this);
         ArtemisFaceDetectModule.setThreadPool(ArtemisThreadPool.getThreadPool());
         ArtemisFaceDetectModule.init(this);
+
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectAll()
+                .penaltyLog()
+                .penaltyDeath()
+                .build());
     }
 }

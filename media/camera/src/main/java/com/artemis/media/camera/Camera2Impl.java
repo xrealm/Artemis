@@ -125,8 +125,8 @@ public class Camera2Impl implements ICamera {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Image image = reader.acquireNextImage();
+            mByteBuffer = Camera2Util.yuv420888toNv21(image, mByteBuffer);
             if (mCameraDataCallback != null) {
-                mByteBuffer = Camera2Util.yuv420888toNv21(image, mByteBuffer);
                 mCameraDataCallback.onData(mByteBuffer);
             }
             image.close();
@@ -205,9 +205,7 @@ public class Camera2Impl implements ICamera {
         try {
             mPreviewRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
             mPreviewRequestBuilder.addTarget(mImageReader.getSurface());
-//            mPreviewRequestBuilder.addTarget(surface);
             mCameraDevice.createCaptureSession(Arrays.asList(mImageReader.getSurface()), new CameraCaptureSession.StateCallback() {
-//            mCameraDevice.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface()), new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
                     if (mCameraDevice == null) {

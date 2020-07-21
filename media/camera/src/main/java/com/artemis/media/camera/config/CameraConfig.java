@@ -19,6 +19,7 @@ public class CameraConfig {
     private Size previewSize;
     private int facingId;
     private int videoFps;
+    private int orientation;
 
     private CameraConfig() {
     }
@@ -65,5 +66,13 @@ public class CameraConfig {
 
     public void setVideoFps(int videoFps) {
         this.videoFps = videoFps;
+    }
+
+    public int getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(int orientation) {
+        this.orientation = orientation;
     }
 }

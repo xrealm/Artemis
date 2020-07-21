@@ -286,7 +286,7 @@ public class CameraPreviewInput extends NV21RenderInput implements ICameraDataCa
     }
 
     private int getRotation() {
-        return 270;
+        return mCamConfig.getOrientation() == 0 ? mCameraAdapter.getCameraRotation() : 270 - mCamConfig.getOrientation();
     }
 
 
