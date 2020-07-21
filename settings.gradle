@@ -8,3 +8,4 @@ include ':media:filter'
 include ':media:camera'
 
 include ':cv'
+include ':media:ar'
