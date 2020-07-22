@@ -16,6 +16,8 @@ public class BasicDynamicFilter  extends BasicFilter {
 
     protected int timeHandle;
     protected float timestamp;
+    private float renderTime;
+    private long startTime;
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp / 1000f;
@@ -30,13 +32,17 @@ public class BasicDynamicFilter  extends BasicFilter {
     @Override
     protected void passShaderValues() {
         super.passShaderValues();
-        GLES30.glUniform1f(timeHandle, timestamp > 0 ? timestamp : SystemClock.elapsedRealtime() / 1000f);
+        renderTime = SystemClock.elapsedRealtime() / 1000f - startTime;
+        GLES30.glUniform1f(timeHandle, timestamp > 0 ? timestamp : renderTime);
     }
 
     @Override
     public void newTextureReady(int texture, GLTextureOutputRenderer source, boolean newData) {
         if (newData) {
             markAsDirty();
+        }
+        if (startTime == 0) {
+            startTime = SystemClock.elapsedRealtime() / 1000L;
         }
         texture_in = texture;
         setWidth(source.getWidth());
