@@ -61,6 +61,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.7.2")
 
     implementation project(':cv')
+    implementation project(':ar')
     implementation project(':media:player')
     implementation project(':media:camera')
     implementation project(':media:imageprocess')

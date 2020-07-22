@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.artemis.ar.ArCoreCapacity;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQ_ALL = 10000;
@@ -63,6 +65,19 @@ public class MainActivity extends AppCompatActivity {
         });
 
         requestAppPermission();
+        requestArCore();
+    }
+
+    private ArCoreCapacity arCoreCapacity = new ArCoreCapacity();
+
+    private void requestArCore() {
+        arCoreCapacity.setArCoreAvailabilityListener(new ArCoreCapacity.IArCoreAvailabilityListener() {
+            @Override
+            public void onAvailability(boolean isSupported) {
+
+            }
+        });
+        arCoreCapacity.checkAvailability(this);
     }
 
     @Override
