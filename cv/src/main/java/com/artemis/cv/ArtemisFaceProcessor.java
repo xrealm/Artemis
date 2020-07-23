@@ -9,10 +9,13 @@ import com.artemis.cv.util.FaceThreadPool;
 public class ArtemisFaceProcessor {
 
     private FacePPWrapper faceProcessor;
-    private boolean isFaceDetectEnable = true;
+    private boolean isFaceDetectEnable = false;
 
     public void prepare(int rotation, int imageWidth, int imageHeight) {
         release();
+        if (!isFaceDetectEnable) {
+            return;
+        }
         faceProcessor = new FacePPWrapper();
         faceProcessor.setContext(ArtemisFaceContext.getAppContext());
         faceProcessor.prepare(rotation, imageWidth, imageHeight);
@@ -33,18 +36,14 @@ public class ArtemisFaceProcessor {
        FaceThreadPool.execute(new Runnable() {
            @Override
            public void run() {
-               FacePPWrapper.auth(context, null);
+               try {
+                   FacePPWrapper.auth(context, null);
+               } catch (Throwable e) {
+                   e.printStackTrace();
+               }
            }
        });
 
-    }
-
-    public static ArtemisFaceProcessor getInstance() {
-        return FaceDetectorHolder.sInstance;
-    }
-
-    private static class FaceDetectorHolder {
-        private static ArtemisFaceProcessor sInstance = new ArtemisFaceProcessor();
     }
 
     public void processFrame(DetectFrame detectFrame, DetectParams detectParams, FrameInfo frameInfo) {

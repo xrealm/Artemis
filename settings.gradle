@@ -7,5 +7,6 @@ include ':media:playercore'
 include ':media:filter'
 include ':media:camera'
 
+include ':crash'
 include ':cv'
 include ':ar'

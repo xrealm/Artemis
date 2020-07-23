@@ -4,6 +4,9 @@ import android.opengl.GLES30;
 
 import com.artemis.media.filter.filter.BasicDynamicFilter;
 
+/**
+ * Created by xrealm on 2020/7/22.
+ */
 public class ScreenShakeGlitchFilter extends BasicDynamicFilter {
 
     private static final String UNIFORM_INTENSITY = "intensity";
@@ -11,13 +14,16 @@ public class ScreenShakeGlitchFilter extends BasicDynamicFilter {
     private int intensityHandle;
     private float intensity;
 
+    /**
+     * @param intensity 0-1
+     */
     public void setIntensity(float intensity) {
         this.intensity = intensity * 0.25f;
     }
 
     @Override
-    protected void bindShaderAttributes() {
-        super.bindShaderAttributes();
+    protected void initShaderHandles() {
+        super.initShaderHandles();
         intensityHandle = GLES30.glGetUniformLocation(programHandle, UNIFORM_INTENSITY);
     }
 
