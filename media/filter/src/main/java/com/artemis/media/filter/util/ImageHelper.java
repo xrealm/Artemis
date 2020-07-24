@@ -10,7 +10,14 @@ import com.artemis.media.filter.ArtemisFilterContext;
  */
 public class ImageHelper {
 
+    private static BitmapFactory.Options sOptions;
+
+    static {
+        sOptions = new BitmapFactory.Options();
+        sOptions.inPremultiplied = false;
+    }
+
     public static Bitmap decodeBitmap(int resId) {
-        return BitmapFactory.decodeResource(ArtemisFilterContext.getAppContext().getResources(), resId);
+        return BitmapFactory.decodeResource(ArtemisFilterContext.getAppContext().getResources(), resId, sOptions);
     }
 }
