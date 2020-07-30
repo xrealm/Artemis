@@ -40,7 +40,7 @@ public class FacePPWrapper {
                     public void onSuccess() {
                         Log.i(TAG, "success to register facepp licence!");
                         if (licenseListener != null) {
-                            licenseListener.onSucess();
+                            licenseListener.onSuccess();
                         }
                     }
 

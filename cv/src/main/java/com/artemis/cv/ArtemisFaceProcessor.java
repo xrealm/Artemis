@@ -10,9 +10,39 @@ public class ArtemisFaceProcessor {
 
     private FacePPWrapper faceProcessor;
     private boolean isFaceDetectEnable = false;
+    private static boolean sInit = false;
+
+    public static void init(final Context context) {
+
+        FaceThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    FacePPWrapper.auth(context, new ILicenseListener() {
+                        @Override
+                        public void onSuccess() {
+                            sInit = true;
+                        }
+
+                        @Override
+                        public void onFailed(int what, String msg) {
+                            sInit = false;
+                        }
+                    });
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+    }
+
 
     public void prepare(int rotation, int imageWidth, int imageHeight) {
         release();
+        if (!sInit) {
+            return;
+        }
         if (!isFaceDetectEnable) {
             return;
         }
@@ -31,22 +61,10 @@ public class ArtemisFaceProcessor {
         }
     }
 
-    public static void init(final Context context) {
-
-       FaceThreadPool.execute(new Runnable() {
-           @Override
-           public void run() {
-               try {
-                   FacePPWrapper.auth(context, null);
-               } catch (Throwable e) {
-                   e.printStackTrace();
-               }
-           }
-       });
-
-    }
-
     public void processFrame(DetectFrame detectFrame, DetectParams detectParams, FrameInfo frameInfo) {
+        if (!sInit) {
+            return;
+        }
         if (!isFaceDetectEnable || faceProcessor == null) {
             return;
         }
