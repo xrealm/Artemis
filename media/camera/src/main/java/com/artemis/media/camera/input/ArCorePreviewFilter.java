@@ -116,8 +116,8 @@ public class ArCorePreviewFilter extends GLTextureOutputRenderer {
     @Override
     public void drawSub() {
         GLES30.glViewport(0, 0, getWidth(), getHeight());
-        GLES30.glClearColor(getBackgroundRed(), getBackgroundGreen(), getBackgroundBlue(), getBackgroundAlpha());
-        GLES30.glClear(GLES30.GL_DEPTH_BUFFER_BIT | GLES30.GL_COLOR_BUFFER_BIT);
+        GLES30.glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
 
         if (mSession == null) {
             return;
@@ -179,10 +179,11 @@ public class ArCorePreviewFilter extends GLTextureOutputRenderer {
         GLES30.glDisableVertexAttribArray(texCoordHandle);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
 
-        // TODO: 2020/8/2  GL_DEPTH_TEST
+        // TODO: 2020/8/2  GL_DEPTH_TEST default GL_LESS
         // Restore the depth state for further drawing.
         GLES30.glDepthMask(true);
-//        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES30.glDepthFunc(GLES30.GL_GREATER);
     }
 
     private boolean openSession() {
