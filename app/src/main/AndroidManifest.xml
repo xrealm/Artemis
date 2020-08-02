@@ -52,6 +52,10 @@
             android:name=".CameraGLActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".CameraArActivity"
+            android:screenOrientation="portrait" />
+
         <activity android:name=".ImageGLActivity"
             android:screenOrientation="portrait" />
 

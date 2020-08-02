@@ -55,6 +55,8 @@ public class CameraPreviewView extends FrameLayout implements ICameraPreviewView
     private void initView(@viewType int viewType) {
         if (viewType == VIEW_GL_TEXTURE) {
             mCameraView = new CameraGLTextureView(getContext());
+        } else if (viewType == VIEW_GL_SURFACE) {
+            mCameraView = new CameraGLSurfaceView(getContext());
         } else if (viewType == VIEW_TEXTURE) {
             mCameraView = new CameraTextureView(getContext());
         } else {

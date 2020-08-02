@@ -19,11 +19,11 @@ public class ArtemisApplication extends Application {
         ArtemisFaceDetectModule.setThreadPool(ArtemisThreadPool.getThreadPool());
         ArtemisFaceDetectModule.init(this);
         ArtemisArCoreModule.init(this);
-        ArtemisCrashModule.init(this);
-        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .penaltyDeath()
-                .build());
+//        ArtemisCrashModule.init(this);
+//        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+//                .detectAll()
+//                .penaltyLog()
+//                .penaltyDeath()
+//                .build());
     }
 }

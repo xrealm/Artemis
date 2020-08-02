@@ -56,6 +56,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.tv_ar_preview).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CameraArActivity.class);
+                startActivity(intent);
+            }
+        });
+
         findViewById(R.id.tv_image_preview).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         arCoreCapacity.setArCoreAvailabilityListener(new ArCoreCapacity.IArCoreAvailabilityListener() {
             @Override
             public void onAvailability(boolean isSupported) {
-
+                findViewById(R.id.tv_ar_preview).setVisibility(isSupported ? View.VISIBLE : View.INVISIBLE);
             }
         });
         arCoreCapacity.checkAvailability(this);

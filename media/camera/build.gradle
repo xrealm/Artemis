@@ -37,5 +37,6 @@ dependencies {
     implementation project(path: ':media:glcore')
     implementation project(path: ':media:filter')
     implementation project(path: ':cv')
+    implementation project(path: ':ar')
 
 }

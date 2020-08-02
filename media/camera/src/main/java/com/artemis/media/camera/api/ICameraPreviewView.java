@@ -12,6 +12,7 @@ public interface ICameraPreviewView {
     int VIEW_SURFACE = 1;
     int VIEW_TEXTURE = 2;
     int VIEW_GL_TEXTURE = 3;
+    int VIEW_GL_SURFACE = 4;
 
     void setAspectRatio(int width, int height);
 
