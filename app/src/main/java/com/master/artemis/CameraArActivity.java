@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.artemis.media.camera.api.ICameraPreviewView;
+import com.artemis.media.camera.config.ArCoreConfig;
 import com.artemis.media.camera.view.CameraPreviewView;
 import com.artemis.media.filter.view.GLTextureView;
 import com.master.artemis.camera.ArCorePreviewer;
@@ -20,6 +21,8 @@ public class CameraArActivity extends AppCompatActivity {
     private GLTextureView glTextureView;
     private ArCorePreviewer previewer;
 
+    private ArCoreConfig arCoreConfig;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,7 +32,7 @@ public class CameraArActivity extends AppCompatActivity {
 
         final CameraPreviewView previewView = new CameraPreviewView(this, ICameraPreviewView.VIEW_GL_TEXTURE);
 
-        rootView.addView(previewView);
+        rootView.addView(previewView, 0);
         previewView.setAspectRatio(720, 1280);
         previewView.addSurfaceCallback(new ICameraPreviewView.ISurfaceCallback() {
             @Override
@@ -50,12 +53,16 @@ public class CameraArActivity extends AppCompatActivity {
             }
         });
         glTextureView = (GLTextureView) previewView.getSurfaceRenderer();
+        findViewById(R.id.tv_debug_depth).setOnClickListener(v -> {
+            arCoreConfig.setDepthColorVisualizationEnabled(!arCoreConfig.isDepthColorVisualizationEnabled());
+        });
 
+        arCoreConfig = new ArCoreConfig();
     }
 
     private void openPreview() {
         if (previewer == null) {
-            previewer = new ArCorePreviewer(this, glTextureView);
+            previewer = new ArCorePreviewer(this, glTextureView, arCoreConfig);
         }
         previewer.startPreview(this);
     }

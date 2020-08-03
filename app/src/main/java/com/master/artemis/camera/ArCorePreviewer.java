@@ -2,6 +2,7 @@ package com.master.artemis.camera;
 
 import android.app.Activity;
 
+import com.artemis.media.camera.config.ArCoreConfig;
 import com.artemis.media.camera.input.ArCorePreviewFilter;
 import com.artemis.media.filter.FastImageProcessingPipeline;
 import com.artemis.media.filter.GLScreenEndpoint;
@@ -18,7 +19,7 @@ public class ArCorePreviewer {
 
     private DisplayRotationHelper mDisplayRotationHelper;
 
-    public ArCorePreviewer(Activity activity, GLTextureView textureView) {
+    public ArCorePreviewer(Activity activity, GLTextureView textureView, ArCoreConfig arCoreConfig) {
         mGLView = textureView;
         mGLView.setEGLContextClientVersion(3);
 
@@ -27,7 +28,7 @@ public class ArCorePreviewer {
         mGLView.setRenderMode(GLTextureView.RENDERMODE_CONTINUOUSLY);
 
         mScreenEndPoint = new GLScreenEndpoint();
-        mArPreviewFilter = new ArCorePreviewFilter(activity.getApplicationContext());
+        mArPreviewFilter = new ArCorePreviewFilter(activity.getApplicationContext(), arCoreConfig);
         mArPreviewFilter.setRenderSize(720,1280);
 
         mArPreviewFilter.addTarget(mScreenEndPoint);
