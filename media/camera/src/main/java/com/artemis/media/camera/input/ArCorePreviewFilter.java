@@ -168,7 +168,7 @@ public class ArCorePreviewFilter extends GLTextureOutputRenderer {
         }
         Camera camera = frame.getCamera();
         if (mSession.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
-//            updateWidthDepthImage(frame);
+            updateWidthDepthImage(frame);
         }
         drawBackground(frame, mArCoreConfig.isDepthColorVisualizationEnabled());
 

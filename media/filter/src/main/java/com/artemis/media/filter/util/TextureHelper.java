@@ -1,7 +1,6 @@
 package com.artemis.media.filter.util;
 
 import android.graphics.Bitmap;
-import android.opengl.GLES11Ext;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
 
@@ -10,7 +9,7 @@ public class TextureHelper {
     public static int generateTexture() {
         int[] tex = new int[1];
         GLES30.glGenTextures(1, tex, 0);
-        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, tex[0]);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, tex[0]);
         GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR);
         GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR);
         GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE);
