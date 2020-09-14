@@ -6,6 +6,8 @@ package com.artemis.asmdemo;
 @DebugTrace
 public class TestClass {
 
+    private int ii = 0;
+
     private void method1() {
         System.out.println("method1");
     }

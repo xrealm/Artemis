@@ -7,6 +7,8 @@ import org.objectweb.asm.ClassWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 /**
  * Created by xrealm on 2020/8/13.
@@ -14,7 +16,19 @@ import java.io.IOException;
 public class AsmTest {
 
     public static void main(String[] args) throws IOException {
+//        testJava();
         testMethod();
+    }
+
+    private static void testJava() {
+        TestMethod testMethod = new TestMethod();
+        try {
+            Method method1 = TestMethod.class.getMethod("method1");
+            Annotation[][] parameterAnnotations = method1.getParameterAnnotations();
+            Annotation[] declaredAnnotations = method1.getDeclaredAnnotations();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void testClass() throws IOException {
